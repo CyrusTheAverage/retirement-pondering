@@ -31,8 +31,6 @@ services:
         condition: service_healthy
     volumes:
       - ./flask:/app
-      - ./uploads:/app/uploads
-      - ./processed:/app/processed
     command: python app.py
 
 volumes:
