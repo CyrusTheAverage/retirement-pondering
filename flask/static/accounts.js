@@ -1,153 +1,167 @@
 // DOM elements
-const form = document.getElementById('accountForm');
-const submitBtn = document.getElementById('submitBtn');
-const clearBtn = document.getElementById('clearBtn');
-const messageContainer = document.getElementById('messageContainer');
-const message = document.getElementById('message');
-
-// Form fields
-const accountNameField = document.getElementById('accountName');
-const descriptionField = document.getElementById('description');
-const accountTypeField = document.getElementById('accountType');
+const accountsList = document.getElementById('accountsList');
+const loadingContainer = document.getElementById('loadingContainer');
+const errorContainer = document.getElementById('errorContainer');
+const emptyState = document.getElementById('emptyState');
+const totalAccounts = document.getElementById('totalAccounts');
+const refreshBtn = document.getElementById('refreshBtn');
+const retryBtn = document.getElementById('retryBtn');
+const errorText = document.getElementById('errorText');
 
 // API endpoint
 const API_BASE_URL = '/api';
 
 // Event listeners
-form.addEventListener('submit', handleFormSubmit);
-clearBtn.addEventListener('click', clearForm);
+refreshBtn.addEventListener('click', loadAccounts);
+retryBtn.addEventListener('click', loadAccounts);
 
-// Handle form submission
-async function handleFormSubmit(event) {
-    event.preventDefault();
-    
-    // Disable submit button and show loading state
-    setLoadingState(true);
-    hideMessage();
+// Load accounts on page load
+document.addEventListener('DOMContentLoaded', loadAccounts);
+
+// Load accounts from API
+async function loadAccounts() {
+    showLoading();
+    hideError();
+    hideEmptyState();
     
     try {
-        // Get form data
-        const formData = {
-            account_name: accountNameField.value.trim(),
-            description: descriptionField.value.trim(),
-            account_type: accountTypeField.value
-        };
-        
-        // Validate form data
-        if (!validateFormData(formData)) {
-            return;
-        }
-        
-        // Make API request
-        const response = await fetch(`${API_BASE_URL}/accounts`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
-        });
-        
+        const response = await fetch(`${API_BASE_URL}/accounts`);
         const data = await response.json();
         
         if (response.ok) {
-            // Success
-            showMessage('Account created successfully!', 'success');
-            clearForm();
+            displayAccounts(data.accounts);
+            updateStats(data.total);
         } else {
-            // Error
-            showMessage(data.error || 'An error occurred while creating the account.', 'error');
+            showError(data.error || 'Failed to load accounts');
         }
-        
     } catch (error) {
-        console.error('Error:', error);
-        showMessage('Network error. Please check your connection and try again.', 'error');
+        console.error('Error loading accounts:', error);
+        showError('Network error. Please check your connection and try again.');
     } finally {
-        setLoadingState(false);
+        hideLoading();
     }
 }
 
-// Validate form data
-function validateFormData(data) {
-    if (!data.account_name) {
-        showMessage('Account name is required.', 'error');
-        accountNameField.focus();
-        return false;
+// Display accounts in the UI
+function displayAccounts(accounts) {
+    if (!accounts || accounts.length === 0) {
+        showEmptyState();
+        return;
     }
     
-    if (!data.description) {
-        showMessage('Description is required.', 'error');
-        descriptionField.focus();
-        return false;
-    }
-    
-    if (!data.account_type) {
-        showMessage('Please select an account type.', 'error');
-        accountTypeField.focus();
-        return false;
-    }
-    
-    return true;
+    accountsList.innerHTML = accounts.map(account => createAccountCard(account)).join('');
 }
 
-// Clear form
-function clearForm() {
-    form.reset();
-    hideMessage();
-    accountNameField.focus();
+// Create HTML for a single account card
+function createAccountCard(account) {
+    const createdDate = new Date(account.created_at).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+    
+    return `
+        <div class="account-card" data-account-id="${account.id}">
+            <div class="account-header">
+                <h3 class="account-name">${escapeHtml(account.account_name)}</h3>
+                <span class="account-type ${account.account_type}">${formatAccountType(account.account_type)}</span>
+            </div>
+            <p class="account-description">${escapeHtml(account.description)}</p>
+            <div class="account-meta">
+                <span class="account-id">ID: ${account.id}</span>
+                <span class="account-date">Created: ${createdDate}</span>
+            </div>
+        </div>
+    `;
 }
 
-// Show message
-function showMessage(text, type) {
-    message.textContent = text;
-    message.className = `message ${type}`;
-    messageContainer.style.display = 'block';
-    
-    // Auto-hide success messages after 5 seconds
-    if (type === 'success') {
+// Format account type for display
+function formatAccountType(type) {
+    const typeMap = {
+        '401k': '401(k)',
+        'ira': 'IRA',
+        'roth_ira': 'Roth IRA',
+        'savings': 'Savings',
+        'checking': 'Checking',
+        'investment': 'Investment',
+        'pension': 'Pension',
+        'other': 'Other'
+    };
+    return typeMap[type] || type;
+}
+
+// Update statistics
+function updateStats(total) {
+    totalAccounts.textContent = `${total} account${total !== 1 ? 's' : ''}`;
+}
+
+// Show/hide different states
+function showLoading() {
+    loadingContainer.style.display = 'block';
+    accountsList.style.display = 'none';
+}
+
+function hideLoading() {
+    loadingContainer.style.display = 'none';
+    accountsList.style.display = 'block';
+}
+
+function showError(message) {
+    errorText.textContent = message;
+    errorContainer.style.display = 'block';
+    accountsList.style.display = 'none';
+}
+
+function hideError() {
+    errorContainer.style.display = 'none';
+}
+
+function showEmptyState() {
+    emptyState.style.display = 'block';
+    accountsList.style.display = 'none';
+}
+
+function hideEmptyState() {
+    emptyState.style.display = 'none';
+}
+
+// Utility function to escape HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Add click handlers to account cards (for future functionality)
+document.addEventListener('click', (e) => {
+    const accountCard = e.target.closest('.account-card');
+    if (accountCard) {
+        const accountId = accountCard.dataset.accountId;
+        console.log('Clicked account:', accountId);
+        // Future: Navigate to account details or edit account
+    }
+});
+
+// Add some nice animations
+function animateAccountCards() {
+    const cards = document.querySelectorAll('.account-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
         setTimeout(() => {
-            hideMessage();
-        }, 5000);
-    }
+            card.style.transition = 'all 0.3s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
 }
 
-// Hide message
-function hideMessage() {
-    messageContainer.style.display = 'none';
-}
-
-// Set loading state
-function setLoadingState(loading) {
-    if (loading) {
-        submitBtn.disabled = true;
-        submitBtn.classList.add('loading');
-        submitBtn.textContent = 'Adding Account...';
-    } else {
-        submitBtn.disabled = false;
-        submitBtn.classList.remove('loading');
-        submitBtn.textContent = 'Add Account';
+// Call animation after accounts are loaded
+const originalDisplayAccounts = displayAccounts;
+displayAccounts = function(accounts) {
+    originalDisplayAccounts(accounts);
+    if (accounts && accounts.length > 0) {
+        setTimeout(animateAccountCards, 100);
     }
-}
-
-// Focus first field on page load
-document.addEventListener('DOMContentLoaded', () => {
-    accountNameField.focus();
-});
-
-// Add some nice interactions
-accountNameField.addEventListener('input', () => {
-    if (messageContainer.style.display === 'block') {
-        hideMessage();
-    }
-});
-
-descriptionField.addEventListener('input', () => {
-    if (messageContainer.style.display === 'block') {
-        hideMessage();
-    }
-});
-
-accountTypeField.addEventListener('change', () => {
-    if (messageContainer.style.display === 'block') {
-        hideMessage();
-    }
-});
+};

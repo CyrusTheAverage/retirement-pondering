@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retirement Pondering - Add Account</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='add_account.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Retirement Pondering</h1>
+            <p>Add a new account to track your retirement savings</p>
+        </header>
+
+        <main>
+            <div class="form-container">
+                <h2>Add New Account</h2>
+                
+                <form id="accountForm">
+                    <div class="form-group">
+                        <label for="accountName">Account Name *</label>
+                        <input 
+                            type="text" 
+                            id="accountName" 
+                            name="account_name" 
+                            placeholder="e.g., 401(k), IRA, Savings Account"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description *</label>
+                        <textarea 
+                            id="description" 
+                            name="description" 
+                            placeholder="Brief description of this account..."
+                            rows="3"
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="accountType">Account Type *</label>
+                        <select id="accountType" name="account_type" required>
+                            <option value="">Select account type...</option>
+                            
+                            <option value="checking">Checking Account</option>
+                            <option value="investment">Investment Account</option>
+                            <option value="mortgage">mortgage</option>
+                        </select>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" id="submitBtn">Add Account</button>
+                        <button type="button" id="clearBtn">Clear Form</button>
+                    </div>
+                </form>
+
+                <!-- Success/Error Messages -->
+                <div id="messageContainer" class="message-container" style="display: none;">
+                    <div id="message" class="message"></div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 Retirement Pondering. Find out when you can retire.</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='add_account.js') }}"></script>
+</body>
+</html>

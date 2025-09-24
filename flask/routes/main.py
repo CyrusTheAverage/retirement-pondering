@@ -7,6 +7,10 @@ bp = Blueprint('main', __name__)
 def index():
     return render_template('index.html')
 
+@bp.route('/add-account')
+def add_account():
+    return render_template('add_account.html')
+
 @bp.route('/accounts')
 def accounts():
     return render_template('accounts.html')
