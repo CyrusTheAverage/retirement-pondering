@@ -51,8 +51,12 @@ async function handleFormSubmit(event) {
         
         if (response.ok) {
             // Success
-            showMessage('Account created successfully!', 'success');
             clearForm();
+            showMessage('✓ Account created successfully! ✓', 'success');
+            // Redirect to accounts page after a short delay
+            setTimeout(() => {
+                window.location.href = '/accounts';
+            }, 5000); // 1.5 second delay to show success message
         } else {
             // Error
             showMessage(data.error || 'An error occurred while creating the account.', 'error');
