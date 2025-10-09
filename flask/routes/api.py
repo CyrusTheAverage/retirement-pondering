@@ -101,7 +101,6 @@ def get_accounts(account_id=None):
 def create_account_snapshots():
     try:
         data = request.get_json()
-        
         # Validate that we have snapshots data
         if 'snapshots' not in data or not isinstance(data['snapshots'], list):
             return jsonify({'error': 'Request must contain a "snapshots" array'}), 400
@@ -173,4 +172,28 @@ def create_account_snapshots():
         
     except Exception as e:
         db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+@bp.route('/account-snapshots/<int:account_id>', methods=['GET'])
+def get_account_snapshots(account_id):
+    try:
+         # First, verify the account exists
+        account = Accounts.query.get(account_id)
+        if not account:
+            return jsonify({'error': f'Account with id {account_id} not found'}), 404
+
+        snapshots = Account_Snapshots.query.filter_by(account_id=account_id).order_by(Account_Snapshots.snapshot_date.desc()).all()
+        return jsonify({
+            'snapshots': [{
+                'id': snapshot.id,
+                'account_id': snapshot.account_id,
+                'snapshot_date': snapshot.snapshot_date.isoformat(),
+                'amount': float(snapshot.amount),
+                'created_at': snapshot.created_at.isoformat(),
+                'updated_at': snapshot.updated_at.isoformat()
+            } for snapshot in snapshots],
+            'total': len(snapshots)
+        }), 200
+    except Exception as e:
         return jsonify({'error': str(e)}), 500

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retirement Pondering - Account Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='account_snapshots.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Retirement Pondering</h1>
+            <p>Account Details & Snapshots</p>
+            <nav>
+                <a href="/add-account" class="nav-link">Add Account</a>
+                <a href="/accounts" class="nav-link">View Accounts</a>
+                <a href="#" class="nav-link active" id="currentAccountLink">Account Details</a>
+            </nav>
+        </header>
+
+        <main>
+            <!-- Loading state -->
+            <div id="loadingContainer" class="loading-container" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p>Loading account details...</p>
+            </div>
+
+            <!-- Error state -->
+            <div id="errorContainer" class="error-container" style="display: none;">
+                <div class="error-message">
+                    <h3>Error Loading Account</h3>
+                    <p id="errorText"></p>
+                    <button id="retryBtn" class="retry-btn">Try Again</button>
+                </div>
+            </div>
+
+            <!-- Account details content -->
+            <div id="accountContent" style="display: none;">
+                <!-- Account Info Section -->
+                <div class="account-info-section">
+                    <div class="account-header">
+                        <div class="account-title">
+                            <h2 id="accountName"></h2>
+                            <span id="accountType" class="account-type"></span>
+                        </div>
+                        <div class="account-actions">
+                            <button id="addSnapshotBtn" class="add-snapshot-btn">Add Snapshot</button>
+                        </div>
+                    </div>
+                    <p id="accountDescription" class="account-description"></p>
+                    <div class="account-meta">
+                        <span id="accountId" class="account-id"></span>
+                        <span id="accountCreated" class="account-date"></span>
+                    </div>
+                </div>
+
+                <!-- Snapshots Section -->
+                <div class="snapshots-section">
+                    <div class="snapshots-header">
+                        <h3>Account Snapshots</h3>
+                        <div class="snapshots-stats">
+                            <span id="totalSnapshots" class="stat">0 snapshots</span>
+                            <span id="latestAmount" class="latest-amount">No snapshots yet</span>
+                        </div>
+                    </div>
+
+                    <!-- Snapshots list -->
+                    <div id="snapshotsList" class="snapshots-list">
+                        <!-- Snapshots will be populated here by JavaScript -->
+                    </div>
+
+                    <!-- Empty snapshots state -->
+                    <div id="emptySnapshotsState" class="empty-state" style="display: none;">
+                        <div class="empty-icon">📈</div>
+                        <h3>No Snapshots Yet</h3>
+                        <p>Start tracking your account balance over time by adding snapshots.</p>
+                        <button id="addFirstSnapshotBtn" class="add-account-btn">Add Your First Snapshot</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 Retirement Pondering. Track your financial future.</p>
+        </footer>
+    </div>
+
+    <!-- Add Snapshot Modal -->
+    <div id="addSnapshotModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Snapshot</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="snapshotForm">
+                <div class="form-group">
+                    <label for="snapshotDate">Snapshot Date *</label>
+                    <input type="date" id="snapshotDate" name="snapshot_date" required>
+                </div>
+                <div class="form-group">
+                    <label for="snapshotAmount">Amount *</label>
+                    <div class="amount-input">
+                        <span class="currency-symbol">$</span>
+                        <input type="number" id="snapshotAmount" name="amount" step="0.01" min="0" placeholder="0.00" required>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" id="submitSnapshotBtn">Add Snapshot</button>
+                    <button type="button" id="cancelSnapshotBtn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Message container -->
+    <div id="messageContainer" class="message-container" style="display: none;">
+        <div id="message" class="message"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='account_snapshots.js') }}"></script>
+</body>
+</html>

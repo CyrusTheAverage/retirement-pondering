@@ -138,7 +138,7 @@ document.addEventListener('click', (e) => {
     if (accountCard) {
         const accountId = accountCard.dataset.accountId;
         console.log('Clicked account:', accountId);
-        // Future: Navigate to account details or edit account
+        window.location.href = `/accounts/${accountId}`;
     }
 });
 

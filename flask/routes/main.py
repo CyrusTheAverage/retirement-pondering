@@ -14,3 +14,7 @@ def add_account():
 @bp.route('/accounts')
 def accounts():
     return render_template('accounts.html')
+
+@bp.route('/accounts/<int:account_id>')
+def account_snapshots(account_id):
+    return render_template('account_snapshots.html', account_id=account_id)
